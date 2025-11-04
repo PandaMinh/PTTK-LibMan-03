@@ -15,6 +15,10 @@ public class UserDAO extends DAO {
     }
     
     public User checkLogin(String username, String password) {
+        if (connection == null) {
+            System.err.println("Database connection is not available. Cannot check login.");
+            return null;
+        }
         String sql = "SELECT * FROM tblUser WHERE username = ? AND password = ?";
         
         try {

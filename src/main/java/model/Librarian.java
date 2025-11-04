@@ -5,6 +5,7 @@ public class Librarian extends Staff {
 
     public Librarian() {
         super();
+        setRole("LIBRARIAN");
     }
 
     public Librarian(int id, Staff staff) {

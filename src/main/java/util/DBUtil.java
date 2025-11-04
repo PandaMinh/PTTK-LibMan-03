@@ -35,6 +35,12 @@ public class DBUtil {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+        // Debug: print which JDBC URL and user we will use (do NOT print password)
+        try {
+            System.out.println("DBUtil init -> JDBC_URL=" + (URL == null ? "<null>" : URL) + ", JDBC_USER=" + (USER == null ? "<null>" : USER));
+        } catch (Throwable t) {
+            // ignore any unexpected error in debug logging
+        }
     }
 
     public static Connection getConnection() throws SQLException {

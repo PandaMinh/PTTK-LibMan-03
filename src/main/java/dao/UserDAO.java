@@ -14,62 +14,61 @@ public class UserDAO extends DAO {
         super();
     }
     
-    public User checkLogin(String username, String password) {
+    /**
+     * Check login by filling the provided User object.
+     * Returns true if credentials match; when true the User object will have id, name, role and other fields populated.
+     */
+    public boolean checkLogin(User u) throws SQLException {
         if (connection == null) {
-            System.err.println("Database connection is not available. Cannot check login.");
-            return null;
+            throw new SQLException("No database connection");
         }
+
         String sql = "SELECT * FROM tblUser WHERE username = ? AND password = ?";
-        
+
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setString(1, u.getUsername());
+        ps.setString(2, u.getPassword());
+        ResultSet rs = ps.executeQuery();
+
         try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, username);
-            ps.setString(2, password);
-            ResultSet rs = ps.executeQuery();
-            
-            if(rs.next()) {
-                User user = new User();
-                user.setId(rs.getInt("id"));
-                user.setUsername(rs.getString("username"));
-                user.setPassword(rs.getString("password"));
-                user.setName(rs.getString("name"));
-                user.setTel(rs.getString("tel"));
-                user.setAddress(rs.getString("address"));
-                user.setEmail(rs.getString("email"));
-                user.setDateOfBirth(rs.getDate("dateOfBirth"));
-                user.setRole(rs.getString("role"));
-                
-                if ("librarian".equals(user.getRole())) {
-                    return getLibrarianByUserId(user);
-                }
-                
-                return user;
+            if (rs.next()) {
+                u.setId(rs.getInt("id"));
+                u.setUsername(rs.getString("username"));
+                u.setPassword(rs.getString("password"));
+                u.setName(rs.getString("name"));
+                u.setTel(rs.getString("tel"));
+                u.setAddress(rs.getString("address"));
+                u.setEmail(rs.getString("email"));
+                u.setDateOfBirth(rs.getDate("dateOfBirth"));
+                String role = rs.getString("role");
+                u.setRole(role == null ? null : role.toUpperCase());
+
+                return true;
             }
-            
-            rs.close();
-            ps.close();
-        } catch (SQLException e) {
-            System.err.println("Error checking login: " + e.getMessage());
+        } finally {
+            try { if (rs != null) rs.close(); } catch (SQLException ignore) {}
+            try { if (ps != null) ps.close(); } catch (SQLException ignore) {}
         }
-        
-        return null;
+
+        return false;
     }
     
-    private Librarian getLibrarianByUserId(User user) throws SQLException {
-        String sql = "SELECT l.id as librarianId, s.id as staffId FROM tblLibrarian l " +
-                    "JOIN tblStaff s ON l.staffId = s.id " +
-                    "WHERE s.userId = ?";
-                    
+    public Librarian getLibrarianByUserId(User user) throws SQLException {
+        // Schema uses tblUser.id = tblStaff.id = tblLibrarian.id (each level shares the same id)
+        // So to check if a given user is a librarian, look for a row in tblLibrarian with id = user.id
+        String sql = "SELECT id as librarianId FROM tblLibrarian WHERE id = ?";
+
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, user.getId());
             ResultSet rs = ps.executeQuery();
-            
-            if(rs.next()) {
-                Staff staff = new Staff(rs.getInt("staffId"), user);
+
+            if (rs.next()) {
+                // In this schema design, staff id equals user id
+                Staff staff = new Staff(user.getId(), user);
                 return new Librarian(rs.getInt("librarianId"), staff);
             }
         }
-        
+
         return null;
     }
 }

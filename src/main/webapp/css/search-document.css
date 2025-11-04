@@ -1,0 +1,51 @@
+/* Page-specific styles for SearchDocument page */
+/* Uses shared header styles from reader.css */
+
+.container.search-page { margin-top: 12px; }
+
+.search-form { background: #fff; padding: 12px; border-radius: 8px; border:1px solid #eef6f5; margin-bottom: 12px; }
+.search-form .form-group { display:flex; gap:8px; align-items:center; }
+.search-form label { font-weight:600; color:#333; }
+.search-form input[type="text"] { padding:8px 10px; border-radius:6px; border:1px solid #ddd; min-width:320px; }
+.search-form button { background:#2b7a78; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; }
+.search-form button:hover { opacity:0.95; }
+
+.search-results h3 { margin-top:0; color:#2b7a78; }
+
+.table-container { background:#fff; border-radius:8px; border:1px solid #eee; overflow:hidden; }
+.table-responsive { overflow-x:auto; }
+.table-container table { width:100%; border-collapse:collapse; font-size:14px; }
+.table-container th, .table-container td { text-align:left; padding:10px 8px; border-bottom:1px solid #f3f3f3; }
+.table-container thead th { background:#fafafa; color:#333; font-weight:600; font-size:13px; }
+.table-container tbody tr:hover { background:#fbfbfb; }
+
+/* compact rows and truncated cells to avoid vertical scrolling */
+.table-container tbody td { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; }
+.table-container tbody td.truncate-long { max-width:160px; }
+
+/* reduce padding for compact view */
+.table-container td, .table-container th { padding-top:8px; padding-bottom:8px; }
+
+.view-button { display:inline-block; padding:6px 10px; border-radius:6px; background:#3d8b86; color:#fff; text-decoration:none; border:none; cursor:pointer; }
+.view-button:hover { opacity:0.95; }
+
+/* Pagination */
+#pagination-controls { margin-top:12px; }
+#pagination-controls a { color:#2b7a78; text-decoration:none; margin-right:6px; }
+#pagination-controls a:hover { text-decoration:underline; }
+#pagination-controls .disabled { color:#bbb; margin-right:6px; }
+#pagination-controls strong { background:#2b7a78; color:#fff; padding:6px 9px; border-radius:6px; }
+
+.page-info { color:#666; font-size:13px; }
+
+.page-size-select { padding:6px 8px; border-radius:6px; border:1px solid #ddd; }
+
+.back-button { display:inline-block; padding:8px 12px; background:transparent; color:#2b7a78; border-radius:6px; text-decoration:none; border:1px solid transparent; }
+.back-button:hover { background:#f0f9f8; }
+
+/* Small screens */
+@media (max-width:720px){
+  .search-form .form-group { flex-direction:column; align-items:flex-start; }
+  .search-form input[type="text"] { min-width:100%; }
+  .table-container th, .table-container td { padding:8px 6px; }
+}

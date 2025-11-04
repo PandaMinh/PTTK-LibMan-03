@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="<c:url value='/css/style.css'/>" type="text/css">
 </head>
 <body>
+    <jsp:include page="/WEB-INF/jsp/common/header.jsp" />
     <div class="container">
         <h2>Search Supplier</h2>
         

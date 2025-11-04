@@ -5,6 +5,7 @@ public class Staff extends User {
 
     public Staff() {
         super();
+        setRole("STAFF");
     }
 
     public Staff(int id, User user) {

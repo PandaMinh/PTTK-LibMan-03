@@ -98,6 +98,6 @@ public class User {
     }
 
     public void setRole(String role) {
-        this.role = role;
+        this.role = role == null ? null : role.toUpperCase();
     }
 }

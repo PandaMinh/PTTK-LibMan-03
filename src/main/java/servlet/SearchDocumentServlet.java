@@ -18,43 +18,71 @@ public class SearchDocumentServlet extends HttpServlet {
     
     public void init() {
         documentDAO = new DocumentDAO();
+        // Test database connection
+        if (!documentDAO.testConnection()) {
+            System.err.println("WARNING: Database connection test failed in SearchDocumentServlet.init()");
+        }
     }
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String searchType = request.getParameter("type");
-        
-        if (searchType == null) {
-            // Show search form
-            request.getRequestDispatcher("/WEB-INF/jsp/reader/ReaderSearchDocuView.jsp")
-                  .forward(request, response);
-            return;
-        }
-        
-        if (searchType.equals("detail")) {
-            // Show document detail
-            int documentId = Integer.parseInt(request.getParameter("id"));
-            Document document = documentDAO.getDetailDocument(documentId);
-            
-            if (document != null) {
-                request.setAttribute("document", document);
-                request.getRequestDispatcher("/WEB-INF/jsp/reader/DetailDocumentView.jsp")
-                      .forward(request, response);
-            } else {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+        String title = request.getParameter("title");
+
+        // Detail view
+        if ("detail".equals(searchType)) {
+            String idStr = request.getParameter("id");
+            System.out.println("Detail request for document ID: " + idStr); // debug
+            try {
+                int documentId = Integer.parseInt(idStr);
+                Document document = documentDAO.getDetailDocument(documentId);
+                System.out.println("Document found: " + (document != null ? document.getTitle() : "null")); // debug
+                if (document != null) {
+                    request.setAttribute("document", document);
+                    request.getRequestDispatcher("/WEB-INF/jsp/reader/DetailDocumentView.jsp")
+                            .forward(request, response);
+                    return;
+                } else {
+                    System.err.println("Document not found for ID: " + documentId); // debug
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                    return;
+                }
+            } catch (NumberFormatException ex) {
+                System.err.println("Invalid document ID format: " + idStr); // debug
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                return;
             }
+        }
+
+        // Search / list view (supports pagination)
+        int page = 1;
+        int pageSize = 10;
+        try {
+            String p = request.getParameter("page");
+            String ps = request.getParameter("pageSize");
+            if (p != null) page = Math.max(1, Integer.parseInt(p));
+            if (ps != null) pageSize = Math.max(1, Integer.parseInt(ps));
+        } catch (NumberFormatException ignore) {}
+
+        List<Document> documents;
+        int totalItems = 0;
+        if (title != null && !title.trim().isEmpty()) {
+            totalItems = documentDAO.getTotal(title);
+            // Use legacy-named method with pagination for compatibility
+            documents = documentDAO.searchDocumentByName(title, page, pageSize);
         } else {
-            // Search by name
-            String title = request.getParameter("title");
-            if (title != null && !title.trim().isEmpty()) {
-                List<Document> documents = documentDAO.searchDocumentByName(title);
-                request.setAttribute("documents", documents);
-            }
-            
-            request.getRequestDispatcher("/WEB-INF/jsp/reader/ReaderSearchDocuView.jsp")
-                  .forward(request, response);
+            totalItems = documentDAO.getTotal(null);
+            documents = documentDAO.search(page, pageSize, null);
         }
+
+        request.setAttribute("documents", documents);
+        request.setAttribute("totalItems", totalItems);
+        request.setAttribute("page", page);
+        request.setAttribute("pageSize", pageSize);
+
+        request.getRequestDispatcher("/WEB-INF/jsp/reader/ReaderSearchDocuView.jsp")
+                .forward(request, response);
     }
     
     @Override

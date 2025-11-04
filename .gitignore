@@ -1,0 +1,8 @@
+/target/
+.idea/
+src/main/resources/.env
+*.env
+*.log
+*.tmp
+*.bak
+.smarttomcat/

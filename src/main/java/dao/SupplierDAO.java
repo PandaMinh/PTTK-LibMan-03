@@ -42,6 +42,33 @@ public class SupplierDAO extends DAO {
         return suppliers;
     }
     
+    public List<Supplier> getAllSuppliers() {
+        List<Supplier> suppliers = new ArrayList<>();
+        String sql = "SELECT * FROM tblSupplier ORDER BY name";
+        
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            
+            while(rs.next()) {
+                Supplier supplier = new Supplier();
+                supplier.setId(rs.getInt("id"));
+                supplier.setName(rs.getString("name"));
+                supplier.setTel(rs.getString("tel"));
+                supplier.setAddress(rs.getString("address"));
+                supplier.setNote(rs.getString("note"));
+                suppliers.add(supplier);
+            }
+            
+            rs.close();
+            ps.close();
+        } catch (SQLException e) {
+            System.err.println("Error getting all suppliers: " + e.getMessage());
+        }
+        
+        return suppliers;
+    }
+    
     public Supplier getSupplierById(int id) {
         Supplier supplier = null;
         String sql = "SELECT * FROM tblSupplier WHERE id = ?";

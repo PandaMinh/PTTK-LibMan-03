@@ -1,6 +1,7 @@
 package dao;
 
 import model.Librarian;
+import model.Reader;
 import model.Staff;
 import model.User;
 
@@ -14,62 +15,93 @@ public class UserDAO extends DAO {
         super();
     }
     
-    public User checkLogin(String username, String password) {
+    public boolean checkLogin(User u) throws SQLException {
         if (connection == null) {
-            System.err.println("Database connection is not available. Cannot check login.");
-            return null;
+            throw new SQLException("No database connection");
         }
+
         String sql = "SELECT * FROM tblUser WHERE username = ? AND password = ?";
-        
+
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setString(1, u.getUsername());
+        ps.setString(2, u.getPassword());
+        ResultSet rs = ps.executeQuery();
+
         try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, username);
-            ps.setString(2, password);
-            ResultSet rs = ps.executeQuery();
-            
-            if(rs.next()) {
-                User user = new User();
-                user.setId(rs.getInt("id"));
-                user.setUsername(rs.getString("username"));
-                user.setPassword(rs.getString("password"));
-                user.setName(rs.getString("name"));
-                user.setTel(rs.getString("tel"));
-                user.setAddress(rs.getString("address"));
-                user.setEmail(rs.getString("email"));
-                user.setDateOfBirth(rs.getDate("dateOfBirth"));
-                user.setRole(rs.getString("role"));
-                
-                if ("librarian".equals(user.getRole())) {
-                    return getLibrarianByUserId(user);
-                }
-                
-                return user;
+            if (rs.next()) {
+                u.setId(rs.getInt("id"));
+                u.setUsername(rs.getString("username"));
+                u.setPassword(rs.getString("password"));
+                u.setName(rs.getString("name"));
+                u.setTel(rs.getString("tel"));
+                u.setAddress(rs.getString("address"));
+                u.setEmail(rs.getString("email"));
+                u.setDateOfBirth(rs.getDate("dateOfBirth"));
+                String role = rs.getString("role");
+                u.setRole(role == null ? null : role.toUpperCase());
+
+                return true;
             }
-            
-            rs.close();
-            ps.close();
-        } catch (SQLException e) {
-            System.err.println("Error checking login: " + e.getMessage());
+        } finally {
+            try { if (rs != null) rs.close(); } catch (SQLException ignore) {}
+            try { if (ps != null) ps.close(); } catch (SQLException ignore) {}
         }
-        
-        return null;
+
+        return false;
     }
     
-    private Librarian getLibrarianByUserId(User user) throws SQLException {
-        String sql = "SELECT l.id as librarianId, s.id as staffId FROM tblLibrarian l " +
-                    "JOIN tblStaff s ON l.staffId = s.id " +
-                    "WHERE s.userId = ?";
-                    
+    public Librarian getLibrarianByUserId(User user) throws SQLException {
+        String sql = "SELECT * FROM tblLibrarian WHERE id = ?";
+
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, user.getId());
-            ResultSet rs = ps.executeQuery();
-            
-            if(rs.next()) {
-                Staff staff = new Staff(rs.getInt("staffId"), user);
-                return new Librarian(rs.getInt("librarianId"), staff);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Staff staff = new Staff(user.getId(), user);
+                    Librarian librarian = new Librarian(rs.getInt("id"), staff);
+                    return librarian;
+                }
             }
+        } catch (SQLException e) {
+            System.err.println("Error getting librarian by user ID " + user.getId() + ": " + e.getMessage());
+            throw e;
         }
-        
+
+        return null;
+    }
+
+    public Reader getReaderByUserId(User user) throws SQLException {
+        String sql = "SELECT * FROM tblReader WHERE id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, user.getId());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Reader reader = new Reader();
+                    reader.setId(user.getId());
+                    reader.setUsername(user.getUsername());
+                    reader.setPassword(user.getPassword());
+                    reader.setName(user.getName());
+                    reader.setTel(user.getTel());
+                    reader.setAddress(user.getAddress());
+                    reader.setEmail(user.getEmail());
+                    reader.setDateOfBirth(user.getDateOfBirth());
+                    reader.setRole("READER");
+                    
+                    // Set reader-specific fields
+                    reader.setNumberCard(rs.getString("numberCard"));
+                    reader.setIssuedDate(rs.getDate("issuedDate"));
+                    reader.setExpiryDate(rs.getDate("expiryDate"));
+                    reader.setDescription(rs.getString("description"));
+                    
+                    return reader;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting reader by user ID " + user.getId() + ": " + e.getMessage());
+            throw e;
+        }
+
         return null;
     }
 }

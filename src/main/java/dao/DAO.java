@@ -13,6 +13,7 @@ public class DAO {
             connection = DBUtil.getConnection();
         } catch (SQLException e) {
             System.err.println("Error establishing database connection: " + e.getMessage());
+            e.printStackTrace(); // debug: print full stacktrace to logs for diagnosis
         }
     }
     

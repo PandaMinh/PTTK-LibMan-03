@@ -1,15 +1,18 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Importing Invoice - Library Management System</title>
-    <link rel="stylesheet" href="<c:url value='/css/style.css'/>" type="text/css">
+    <title>Phiếu nhập kho - LibMan</title>
+    <link rel="stylesheet" href="<c:url value='/css/global.css'/>" type="text/css">
+    <link rel="stylesheet" href="<c:url value='/css/header.css'/>" type="text/css">
+    <link rel="stylesheet" href="<c:url value='/css/reader.css'/>" type="text/css">
 </head>
 <body>
-    <div class="container">
-        <h2>Importing Invoice</h2>
+    <jsp:include page="/WEB-INF/jsp/common/header.jsp" />
+    <div class="container main-content">
+        <h2 style="color: var(--brand);">Phiếu nhập kho</h2>
         
         <div class="supplier-info">
             <h3>Supplier Information</h3>

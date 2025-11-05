@@ -4,16 +4,18 @@ import java.util.Date;
 
 public class Reader extends User {
     private String numberCard;
-    private String issuedDate;
-    private String expiryDate;
+    private Date issuedDate;
+    private Date expiryDate;
     private String description;
 
     public Reader() {
+        super();
+        setRole("READER");
     }
 
     public Reader(int id, String username, String password, String name, String tel, 
                 String address, String email, Date dateOfBirth, String role,
-                String numberCard, String issuedDate, String expiryDate, String description) {
+                String numberCard, Date issuedDate, Date expiryDate, String description) {
         super(id, username, password, name, tel, address, email, dateOfBirth, role);
         this.numberCard = numberCard;
         this.issuedDate = issuedDate;
@@ -29,19 +31,19 @@ public class Reader extends User {
         this.numberCard = numberCard;
     }
 
-    public String getIssuedDate() {
+    public Date getIssuedDate() {
         return issuedDate;
     }
 
-    public void setIssuedDate(String issuedDate) {
+    public void setIssuedDate(Date issuedDate) {
         this.issuedDate = issuedDate;
     }
 
-    public String getExpiryDate() {
+    public Date getExpiryDate() {
         return expiryDate;
     }
 
-    public void setExpiryDate(String expiryDate) {
+    public void setExpiryDate(Date expiryDate) {
         this.expiryDate = expiryDate;
     }
 

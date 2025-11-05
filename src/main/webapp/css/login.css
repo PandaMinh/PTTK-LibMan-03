@@ -1,0 +1,62 @@
+/* Login page styles adapted from the React design */
+:root{
+  --brand:#2b7a78;
+  --bg:#e8f4f3;
+  --card-bg:#ffffff;
+  --muted:#6b7280;
+  --danger:#ef4444;
+}
+
+html,body{height:100%;margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+
+.login-page{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  background-color:var(--bg);
+}
+
+.card{
+  width:100%;
+  max-width:420px;
+  background:var(--card-bg);
+  border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.08);
+  overflow:hidden;
+}
+
+.card-header{
+  text-align:center;
+  padding:28px 20px 8px 20px;
+}
+
+.logo-circle{
+  width:80px;height:80px;margin:0 auto;border-radius:9999px;display:flex;align-items:center;justify-content:center;background:var(--brand);
+}
+.book-icon{width:40px;height:40px;color:#fff}
+
+.card-title{color:var(--brand);font-size:1.125rem;margin:12px 0 0 0;font-weight:600}
+
+.card-content{padding:20px}
+
+.error-box{background:rgba(239,68,68,0.08);color:var(--danger);padding:10px;border-radius:8px;margin-bottom:12px}
+
+.login-form{display:flex;flex-direction:column;gap:12px}
+.field{display:flex;flex-direction:column;gap:8px}
+.field label{font-size:0.95rem;color:#111827}
+.field input{padding:10px 12px;border-radius:8px;border:1px solid #e5e7eb;font-size:0.95rem}
+.field input:focus{outline:none;box-shadow:0 0 0 4px rgba(43,122,120,0.08);border-color:var(--brand)}
+
+.btn-primary{background:var(--brand);color:#fff;border:none;padding:10px 12px;border-radius:8px;font-weight:600;cursor:pointer}
+.btn-primary:hover{filter:brightness(0.95)}
+
+.card-footer{margin-top:18px;padding-top:16px;border-top:1px solid #f3f4f6;color:var(--muted);text-align:center;font-size:0.9rem}
+
+/* responsive */
+@media (max-width:420px){
+  .card{border-radius:10px}
+  .logo-circle{width:64px;height:64px}
+  .book-icon{width:32px;height:32px}
+}

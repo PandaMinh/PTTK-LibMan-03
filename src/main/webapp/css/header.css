@@ -1,0 +1,217 @@
+/* Header styles inspired by React design */
+.main-header {
+    background: #2b7a78;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.header-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+@media (min-width: 640px) {
+    .header-container {
+        padding: 0 24px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .header-container {
+        padding: 0 32px;
+    }
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 48px;
+}
+
+/* Logo và Tên hệ thống */
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.library-icon {
+    width: 24px;
+    height: 24px;
+    color: white;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-title {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    margin: 0;
+    line-height: 1.2;
+    color: white;
+}
+
+@media (min-width: 640px) {
+    .brand-title {
+        font-size: 18px;
+    }
+}
+
+/* Thông tin người dùng */
+.header-user {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.user-info {
+    display: none;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+@media (min-width: 640px) {
+    .user-info {
+        display: flex;
+    }
+}
+
+.user-name {
+    font-weight: 500;
+    font-size: 16px;
+    color: white;
+}
+
+.user-role {
+    font-size: 14px;
+    color: #def2f1;
+    opacity: 0.9;
+}
+
+/* Mobile view - chỉ hiển thị tên */
+.user-info-mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+@media (min-width: 640px) {
+    .user-info-mobile {
+        display: none;
+    }
+}
+
+.user-name-mobile {
+    font-size: 14px;
+    font-weight: 500;
+    color: white;
+}
+
+/* Logout button */
+.logout-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    gap: 8px;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.logout-icon {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+}
+
+.logout-text {
+    display: none;
+}
+
+@media (min-width: 640px) {
+    .logout-text {
+        display: inline;
+    }
+}
+
+.logout-text-mobile {
+    display: inline;
+}
+
+@media (min-width: 640px) {
+    .logout-text-mobile {
+        display: none;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .header-content {
+        height: 44px;
+    }
+    
+    .brand-title {
+        font-size: 14px;
+    }
+    
+    .brand-icon {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .library-icon {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .header-user {
+        gap: 12px;
+    }
+}
+
+/* Integration with existing styles */
+.topbar {
+    display: none; /* Hide old header styles */
+}
+
+/* Ensure header works with existing layout */
+body.with-header {
+    padding-top: 0; /* Remove any existing top padding */
+}
+
+.container {
+    margin-top: 0; /* Adjust container margins */
+}
+
+.container.main-content {
+    margin-top: 24px; /* Add space below header */
+}

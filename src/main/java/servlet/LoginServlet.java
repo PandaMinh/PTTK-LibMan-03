@@ -2,6 +2,7 @@ package servlet;
 
 import dao.UserDAO;
 import model.Librarian;
+import model.Reader;
 import model.User;
 
 import javax.servlet.ServletException;
@@ -17,10 +18,6 @@ public class LoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private UserDAO userDAO = new UserDAO();
     
-//    public void init() {
-//        userDAO = new UserDAO();
-//    }
-    
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -33,15 +30,14 @@ public class LoginServlet extends HttpServlet {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
-    // Server-side validation: ensure required fields are provided
+    // ensure required fields are provided
         if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-            request.setAttribute("username", username);
+            request.setAttribute("username", username); // preserve entered username
             request.setAttribute("error", "Vui lòng nhập tên đăng nhập và mật khẩu");
             request.getRequestDispatcher("/WEB-INF/jsp/user/Login.jsp").forward(request, response);
             return;
         }
 
-        // build user object and attempt login
         User u = new User();
         u.setUsername(username.trim());
         u.setPassword(password);
@@ -50,7 +46,7 @@ public class LoginServlet extends HttpServlet {
         try {
             ok = userDAO.checkLogin(u);
         } catch (java.sql.SQLException ex) {
-            // database error during login attempt: show friendly message and log stacktrace
+            // database error during login attempt
             ex.printStackTrace();
             request.setAttribute("username", username);
             request.setAttribute("error", "Hệ thống hiện đang gặp sự cố. Vui lòng thử lại sau.");
@@ -80,9 +76,21 @@ public class LoginServlet extends HttpServlet {
                     return;
                 }
             } catch (java.sql.SQLException ex) {
-                // If librarian-specific tables are missing or query fails, log a warning and continue with User object
                 ex.printStackTrace();
-                // fall through to store User and redirect
+            }
+        }
+
+        else if ("reader".equalsIgnoreCase(role)) {
+            try {
+                Reader reader = userDAO.getReaderByUserId(u);
+                if (reader != null) {
+                    HttpSession session = request.getSession();
+                    session.setAttribute("user", reader);
+                    response.sendRedirect(request.getContextPath() + "/reader");
+                    return;
+                }
+            } catch (java.sql.SQLException ex) {
+                ex.printStackTrace();
             }
         }
 
@@ -90,15 +98,12 @@ public class LoginServlet extends HttpServlet {
         HttpSession session = request.getSession();
         session.setAttribute("user", u);
         switch (role) {
-            case "reader":
-                response.sendRedirect(request.getContextPath() + "/reader");
-                break;
             case "manager":
                 response.sendRedirect(request.getContextPath() + "/manager");
                 break;
             default:
                 response.sendRedirect(request.getContextPath() + "/");
+                break;
         }
-        return;
     }
 }

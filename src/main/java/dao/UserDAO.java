@@ -1,6 +1,7 @@
 package dao;
 
 import model.Librarian;
+import model.Reader;
 import model.Staff;
 import model.User;
 
@@ -14,10 +15,6 @@ public class UserDAO extends DAO {
         super();
     }
     
-    /**
-     * Check login by filling the provided User object.
-     * Returns true if credentials match; when true the User object will have id, name, role and other fields populated.
-     */
     public boolean checkLogin(User u) throws SQLException {
         if (connection == null) {
             throw new SQLException("No database connection");
@@ -54,19 +51,55 @@ public class UserDAO extends DAO {
     }
     
     public Librarian getLibrarianByUserId(User user) throws SQLException {
-        // Schema uses tblUser.id = tblStaff.id = tblLibrarian.id (each level shares the same id)
-        // So to check if a given user is a librarian, look for a row in tblLibrarian with id = user.id
-        String sql = "SELECT id as librarianId FROM tblLibrarian WHERE id = ?";
+        String sql = "SELECT * FROM tblLibrarian WHERE id = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, user.getId());
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                // In this schema design, staff id equals user id
-                Staff staff = new Staff(user.getId(), user);
-                return new Librarian(rs.getInt("librarianId"), staff);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Staff staff = new Staff(user.getId(), user);
+                    Librarian librarian = new Librarian(rs.getInt("id"), staff);
+                    return librarian;
+                }
             }
+        } catch (SQLException e) {
+            System.err.println("Error getting librarian by user ID " + user.getId() + ": " + e.getMessage());
+            throw e;
+        }
+
+        return null;
+    }
+
+    public Reader getReaderByUserId(User user) throws SQLException {
+        String sql = "SELECT * FROM tblReader WHERE id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, user.getId());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Reader reader = new Reader();
+                    reader.setId(user.getId());
+                    reader.setUsername(user.getUsername());
+                    reader.setPassword(user.getPassword());
+                    reader.setName(user.getName());
+                    reader.setTel(user.getTel());
+                    reader.setAddress(user.getAddress());
+                    reader.setEmail(user.getEmail());
+                    reader.setDateOfBirth(user.getDateOfBirth());
+                    reader.setRole("READER");
+                    
+                    // Set reader-specific fields
+                    reader.setNumberCard(rs.getString("numberCard"));
+                    reader.setIssuedDate(rs.getDate("issuedDate"));
+                    reader.setExpiryDate(rs.getDate("expiryDate"));
+                    reader.setDescription(rs.getString("description"));
+                    
+                    return reader;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting reader by user ID " + user.getId() + ": " + e.getMessage());
+            throw e;
         }
 
         return null;

@@ -1,32 +1,41 @@
 /* Page-specific styles for SearchDocument page */
 /* Uses shared header styles from reader.css */
 
-.container.search-page { margin-top: 12px; }
+.container.search-page { margin-top: 8px; }
 
-.search-form { background: #fff; padding: 12px; border-radius: 8px; border:1px solid #eef6f5; margin-bottom: 12px; }
+.search-form { background: #fff; padding: 8px; border-radius: 8px; border:1px solid #eef6f5; margin-bottom: 8px; }
 .search-form .form-group { display:flex; gap:8px; align-items:center; }
-.search-form label { font-weight:600; color:#333; }
-.search-form input[type="text"] { padding:8px 10px; border-radius:6px; border:1px solid #ddd; min-width:320px; }
-.search-form button { background:#2b7a78; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; }
+.search-form label { font-weight:600; color:#333; font-size: 13px; }
+.search-form input[type="text"] { padding:6px 8px; border-radius:6px; border:1px solid #ddd; min-width:320px; font-size: 13px; }
+.search-form button { background:#2b7a78; color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; font-size: 13px; }
 .search-form button:hover { opacity:0.95; }
 
 .search-results h3 { margin-top:0; color:#2b7a78; }
 
 .table-container { background:#fff; border-radius:8px; border:1px solid #eee; overflow:hidden; }
 .table-responsive { overflow-x:auto; }
-.table-container table { width:100%; border-collapse:collapse; font-size:14px; }
-.table-container th, .table-container td { text-align:left; padding:10px 8px; border-bottom:1px solid #f3f3f3; }
-.table-container thead th { background:#fafafa; color:#333; font-weight:600; font-size:13px; }
+.table-container table { width:100%; border-collapse:collapse; font-size:12px; line-height: 1.2; table-layout: fixed; }
+.table-container th, .table-container td { text-align:left; padding:4px 6px; border-bottom:1px solid #f3f3f3; }
+.table-container thead th { background:#fafafa; color:#333; font-weight:600; font-size:11px; text-align: center; }
 .table-container tbody tr:hover { background:#fbfbfb; }
 
+/* Column widths for better distribution */
+.table-container th:nth-child(1), .table-container td:nth-child(1) { width: 35%; } /* Tiêu đề */
+.table-container th:nth-child(2), .table-container td:nth-child(2) { width: 20%; } /* Tác giả */
+.table-container th:nth-child(3), .table-container td:nth-child(3) { width: 15%; } /* Thể loại */
+.table-container th:nth-child(4), .table-container td:nth-child(4) { width: 10%; text-align: center; } /* Năm */
+.table-container th:nth-child(5), .table-container td:nth-child(5) { width: 20%; text-align: center; } /* Thao tác */
+
 /* compact rows and truncated cells to avoid vertical scrolling */
-.table-container tbody td { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; }
-.table-container tbody td.truncate-long { max-width:160px; }
+.table-container tbody td { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.table-container tbody td:nth-child(1) { max-width: 250px; } /* Tiêu đề có thể dài */
+.table-container tbody td:nth-child(2) { max-width: 150px; } /* Tác giả */
+.table-container tbody td:nth-child(3) { max-width: 100px; } /* Thể loại */
 
-/* reduce padding for compact view */
-.table-container td, .table-container th { padding-top:8px; padding-bottom:8px; }
+/* reduce padding for compact view - minimal padding for maximum content */
+.table-container td, .table-container th { padding-top:3px; padding-bottom:3px; }
 
-.view-button { display:inline-block; padding:6px 10px; border-radius:6px; background:#3d8b86; color:#fff; text-decoration:none; border:none; cursor:pointer; }
+.view-button { display:inline-block; padding:3px 6px; border-radius:4px; background:#3d8b86; color:#fff; text-decoration:none; border:none; cursor:pointer; font-size:11px; }
 .view-button:hover { opacity:0.95; }
 
 /* Pagination */

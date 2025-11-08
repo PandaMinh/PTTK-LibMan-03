@@ -1,12 +1,17 @@
 /* Global color scheme and base styles - LibMan Theme */
 :root {
   --brand: #2b7a78;           /* Primary brand color - teal */
+  --primary: #2b7a78;         /* Primary color alias */
   --brand-light: #e8f4f3;     /* Light background */
+  --bg-light: #f8fafc;        /* Light background alias */
+  --background-light: #f8fafc; /* Background light alias */
   --brand-hover: #256966;     /* Darker hover state */
   --card-bg: #ffffff;         /* Card background */
   --muted: #6b7280;           /* Muted text color */
   --text-dark: #111827;       /* Dark text */
   --text-medium: #4b5563;     /* Medium text */
+  --text-secondary: #6b7280;  /* Secondary text alias */
+  --border: #d1d5db;          /* Default border color */
   --border-light: #e5e7eb;    /* Light borders */
   --border-brand: #d8ebe9;    /* Brand-colored borders */
   --danger: #ef4444;          /* Error/danger color */
@@ -82,6 +87,7 @@ h3 { font-size: 1.25rem; }
   border-radius: 8px;
   text-decoration: none;
   font-weight: 600;
+  font-size: 14px;
   border: none;
   cursor: pointer;
   transition: all 0.15s ease;

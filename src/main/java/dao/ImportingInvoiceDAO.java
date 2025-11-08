@@ -2,11 +2,14 @@ package dao;
 
 import model.ImportingDetail;
 import model.ImportingInvoice;
+import model.Supplier;
+import model.Librarian;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ImportingInvoiceDAO extends DAO {
@@ -73,7 +76,7 @@ public class ImportingInvoiceDAO extends DAO {
     }
     
     private boolean addListNewImportingDetail(List<ImportingDetail> details) throws SQLException {
-        String sql = "INSERT INTO tblImportingDetail (importingInvoiceId, documentId, price, quantity) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO tblImportingDetail (invoiceId, documentId, price, quantity) VALUES (?, ?, ?, ?)";
         
         boolean autoCommit = connection.getAutoCommit();
         try {
@@ -121,5 +124,43 @@ public class ImportingInvoiceDAO extends DAO {
                 connection.setAutoCommit(true);
             }
         }
+    }
+    
+    public List<ImportingInvoice> getAllImportingInvoices() throws SQLException {
+        List<ImportingInvoice> invoices = new ArrayList<>();
+        String sql = "SELECT ii.id, ii.importDate, ii.supplierId, ii.librarianId, ii.typePay, ii.bank, " +
+                     "s.name as supplierName, s.tel as supplierTel, s.address as supplierAddress " +
+                     "FROM tblImportingInvoice ii " +
+                     "LEFT JOIN tblSupplier s ON ii.supplierId = s.id " +
+                     "ORDER BY ii.importDate DESC";
+        
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            
+            while (rs.next()) {
+                ImportingInvoice invoice = new ImportingInvoice();
+                invoice.setId(rs.getInt("id"));
+                invoice.setImportDate(rs.getDate("importDate"));
+                invoice.setTypePay(rs.getString("typePay"));
+                invoice.setBank(rs.getString("bank"));
+                
+                // Create supplier object
+                Supplier supplier = new Supplier();
+                supplier.setId(rs.getInt("supplierId"));
+                supplier.setName(rs.getString("supplierName"));
+                supplier.setTel(rs.getString("supplierTel"));
+                supplier.setAddress(rs.getString("supplierAddress"));
+                invoice.setSupplier(supplier);
+                
+                // Create librarian object (simple version)
+                Librarian librarian = new Librarian();
+                librarian.setId(rs.getInt("librarianId"));
+                invoice.setLibrarian(librarian);
+                
+                invoices.add(invoice);
+            }
+        }
+        
+        return invoices;
     }
 }

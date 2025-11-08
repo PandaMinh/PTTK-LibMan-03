@@ -14,27 +14,67 @@ public class SupplierDAO extends DAO {
         super();
     }
     
-    public List<Supplier> searchSupplierByName(String name) {
+    /**
+     * Helper method to create Supplier object from ResultSet
+     */
+    private Supplier createSupplierFromResultSet(ResultSet rs) throws SQLException {
+        Supplier supplier = new Supplier();
+        supplier.setId(rs.getInt("id"));
+        supplier.setName(rs.getString("name"));
+        supplier.setTel(rs.getString("tel"));
+        supplier.setAddress(rs.getString("address"));
+        supplier.setNote(rs.getString("note"));
+        return supplier;
+    }
+    
+    /**
+     * Main search method with pagination support
+     * @param page 1-based page number (use 0 for all results)
+     * @param pageSize number of results per page (ignored if page = 0)
+     * @param keyword search keyword (searches name, tel, address)
+     * @return List of matching suppliers
+     */
+    public List<Supplier> search(int page, int pageSize, String keyword) {
         List<Supplier> suppliers = new ArrayList<>();
-        String sql = "SELECT * FROM tblSupplier WHERE name LIKE ?";
+        String base = "SELECT * FROM tblSupplier";
+        String where = "";
+        String orderLimit = " ORDER BY name";
         
+        boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
+        if (hasKeyword) {
+            where = " WHERE name LIKE ? OR tel LIKE ? OR address LIKE ?";
+        }
+        
+        if (page > 0) {
+            orderLimit += " LIMIT ? OFFSET ?";
+        }
+        
+        String sql = base + where + orderLimit;
+
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, "%" + name + "%");
-            ResultSet rs = ps.executeQuery();
+            int idx = 1;
             
-            while(rs.next()) {
-                Supplier supplier = new Supplier();
-                supplier.setId(rs.getInt("id"));
-                supplier.setName(rs.getString("name"));
-                supplier.setTel(rs.getString("tel"));
-                supplier.setAddress(rs.getString("address"));
-                supplier.setNote(rs.getString("note"));
-                suppliers.add(supplier);
+            if (hasKeyword) {
+                String q = "%" + keyword + "%";
+                ps.setString(idx++, q);
+                ps.setString(idx++, q);
+                ps.setString(idx++, q);
             }
             
+            if (page > 0) {
+                int offset = (page - 1) * pageSize;
+                ps.setInt(idx++, pageSize);
+                ps.setInt(idx, offset);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                suppliers.add(createSupplierFromResultSet(rs));
+            }
             rs.close();
             ps.close();
+            
         } catch (SQLException e) {
             System.err.println("Error searching suppliers: " + e.getMessage());
         }
@@ -42,31 +82,16 @@ public class SupplierDAO extends DAO {
         return suppliers;
     }
     
+    public List<Supplier> searchSupplierByName(String name, int page, int pageSize) {
+        return search(page, pageSize, name);
+    }
+    
+    public List<Supplier> searchSupplierByName(String name) {
+        return search(0, 0, name);
+    }
+    
     public List<Supplier> getAllSuppliers() {
-        List<Supplier> suppliers = new ArrayList<>();
-        String sql = "SELECT * FROM tblSupplier ORDER BY name";
-        
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
-            
-            while(rs.next()) {
-                Supplier supplier = new Supplier();
-                supplier.setId(rs.getInt("id"));
-                supplier.setName(rs.getString("name"));
-                supplier.setTel(rs.getString("tel"));
-                supplier.setAddress(rs.getString("address"));
-                supplier.setNote(rs.getString("note"));
-                suppliers.add(supplier);
-            }
-            
-            rs.close();
-            ps.close();
-        } catch (SQLException e) {
-            System.err.println("Error getting all suppliers: " + e.getMessage());
-        }
-        
-        return suppliers;
+        return search(0, 0, null);
     }
     
     public Supplier getSupplierById(int id) {
@@ -79,12 +104,7 @@ public class SupplierDAO extends DAO {
             ResultSet rs = ps.executeQuery();
             
             if(rs.next()) {
-                supplier = new Supplier();
-                supplier.setId(rs.getInt("id"));
-                supplier.setName(rs.getString("name"));
-                supplier.setTel(rs.getString("tel"));
-                supplier.setAddress(rs.getString("address"));
-                supplier.setNote(rs.getString("note"));
+                supplier = createSupplierFromResultSet(rs);
             }
             
             rs.close();

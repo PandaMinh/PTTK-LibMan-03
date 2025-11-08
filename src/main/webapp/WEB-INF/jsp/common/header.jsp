@@ -3,6 +3,7 @@
     Object userObj = session.getAttribute("user");
     String displayName = "Khách";
     String userRole = "Khách";
+    String fullDisplayName = "Khách";
     if (userObj != null) {
         try {
             java.lang.reflect.Method mName = userObj.getClass().getMethod("getName");
@@ -26,6 +27,7 @@
                         userRole = roleStr;
                 }
             }
+            fullDisplayName = displayName + " - " + userRole;
         } catch (Exception e) {
             // ignore
         }
@@ -34,7 +36,7 @@
 <header class="main-header">
     <div class="header-container">
         <div class="header-content">
-            <!-- Logo và Tên hệ thống -->
+            <!-- Logo và Tên hệ thống (Vùng vàng) -->
             <div class="header-brand">
                 <div class="brand-icon">
                     <svg class="library-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -47,18 +49,15 @@
                 </div>
             </div>
 
-            <!-- Thông tin người dùng và Logout -->
-            <div class="header-user">
-                <div class="user-info">
-                    <span class="user-name"><%= displayName %></span>
-                    <span class="user-role"><%= userRole %></span>
+            <!-- Thông tin người dùng ở giữa -->
+            <div class="header-middle">
+                <div class="user-info-center">
+                    <span class="user-fullname"><%= fullDisplayName %></span>
                 </div>
-                
-                <!-- Mobile view - chỉ hiển thị tên -->
-                <div class="user-info-mobile">
-                    <span class="user-name-mobile"><%= displayName %></span>
-                </div>
+            </div>
 
+            <!-- Đăng xuất (Vùng đỏ) -->
+            <div class="header-logout">
                 <a href="<%= request.getContextPath() %>/user/logout" class="logout-btn">
                     <svg class="logout-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -66,7 +65,6 @@
                         <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                     <span class="logout-text">Đăng xuất</span>
-                    <span class="logout-text-mobile">Thoát</span>
                 </a>
             </div>
         </div>

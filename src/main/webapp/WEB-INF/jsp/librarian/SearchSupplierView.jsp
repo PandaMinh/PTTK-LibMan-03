@@ -35,9 +35,9 @@
                     <label for="name" class="form-label">Tên nhà cung cấp:</label>
                     <div style="display: flex; gap: 12px; align-items: center;">
                         <input type="text" id="name" name="name" value="${param.name}" class="form-input" placeholder="Nhập tên nhà cung cấp cần tìm...">
-                        <button type="submit" class="btn btn-primary" style="min-width: 120px; white-space: nowrap;">Tìm kiếm</button>
-                        <a href="<c:url value='/searchSupplier'/>" class="btn btn-outline" style="white-space: nowrap;">Danh sách NCC</a>
-                        <a href="<c:url value='/supplier/new'/>" class="btn btn-success" style="white-space: nowrap;">+ Thêm mới NCC</a>
+                        <button type="submit" class="btn btn-primary" style="white-space: nowrap; padding: 6px 12px; min-width: 100px; font-size: 14px;">Tìm kiếm</button>
+                        <button type="button" class="btn btn-primary" onclick="window.location.href='${pageContext.request.contextPath}/searchSupplier'" style="white-space: nowrap; padding: 6px 12px; min-width: 100px; font-size: 14px;">Danh sách</button>
+                        <button type="button" class="btn btn-primary" onclick="window.location.href='${pageContext.request.contextPath}/supplier/new'" style="white-space: nowrap; padding: 6px 12px; min-width: 100px; font-size: 14px;">+ Thêm mới</button>
                     </div>
                     <div id="search-error" style="color: #dc3545; font-size: 14px; margin-top: 8px; display: none;">
                         Vui lòng nhập tên nhà cung cấp cần tìm kiếm!
@@ -54,9 +54,42 @@
                     <h2 style="margin: 0; color: var(--brand); font-size: 18px;">Kết quả tìm kiếm</h2>
                     <div class="alert alert-info" style="margin: 0; padding: 6px 10px; font-size: 13px;">
                         <c:choose>
-                            <c:when test="${fn:length(suppliers) == 0}">Không tìm thấy kết quả</c:when>
-                            <c:otherwise>Tìm thấy ${fn:length(suppliers)} nhà cung cấp</c:otherwise>
+                            <c:when test="${totalItems == 0}">Không tìm thấy kết quả</c:when>
+                            <c:otherwise>Tìm thấy ${totalItems} nhà cung cấp</c:otherwise>
                         </c:choose>
+                    </div>
+                </div>
+
+                <!-- Controls: page info and page size -->
+                <c:set var="page" value="${page != null ? page : 1}" />
+                <c:set var="pageSize" value="${pageSize != null ? pageSize : 10}" />
+                <c:set var="totalItems" value="${totalItems != null ? totalItems : 0}" />
+                <c:set var="totalPages" value="${totalPages != null ? totalPages : 1}" />
+                <c:set var="actualItemsCount" value="${fn:length(suppliers)}" />
+                
+                <!-- Simple pagination logic based on current page and total pages -->
+                <c:set var="hasNextPage" value="${page < totalPages}" />
+                <c:set var="hasPrevPage" value="${page > 1}" />
+
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:12px;padding:8px;background:var(--brand-light);border-radius:8px;">
+                    <div id="page-info" class="text-muted" style="font-size: 12px;">
+                        <c:choose>
+                            <c:when test="${totalItems == 0}">Hiển thị 0 kết quả</c:when>
+                            <c:otherwise>Hiển thị ${actualItemsCount} kết quả của ${totalItems} (trang ${page}/${totalPages})</c:otherwise>
+                        </c:choose>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <span class="text-small" style="font-size: 12px;">Hiển thị:</span>
+                        <form method="get" action="<c:url value='/searchSupplier'/>" style="display:flex;align-items:center;gap:6px;">
+                            <input type="hidden" name="name" value="${param.name}" />
+                            <label for="pageSize" style="font-size: 12px;">Kích thước trang:</label>
+                            <select id="pageSize" name="pageSize" onchange="this.form.submit()" class="page-size-select" style="font-size: 12px; padding: 4px 6px;">
+                                <option value="5" ${pageSize==5 ? 'selected' : ''}>5</option>
+                                <option value="10" ${pageSize==10 ? 'selected' : ''}>10</option>
+                                <option value="15" ${pageSize==15 ? 'selected' : ''}>15</option>
+                            </select>
+                            <input type="hidden" name="page" value="1" />
+                        </form>
                     </div>
                 </div>
 
@@ -86,6 +119,74 @@
                     </table>
                 </div>
                 </div>
+
+                <!-- Pagination controls - show exact page numbers based on total results -->
+                <c:if test="${totalPages > 1}">
+                <div id="pagination-controls" style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--border-light);">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <c:url var="baseUrl" value="/searchSupplier" />
+
+                        <!-- Previous button -->
+                        <c:choose>
+                            <c:when test="${hasPrevPage}">
+                                <a href="${baseUrl}?name=${fn:escapeXml(param.name)}&amp;page=${page-1}&amp;pageSize=${pageSize}" class="btn btn-sm btn-outline">← Trước</a>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="btn btn-sm btn-disabled">← Trước</span>
+                            </c:otherwise>
+                        </c:choose>
+
+                        <!-- Show page numbers around current page -->
+                        <c:set var="startPage" value="${page - 2}" />
+                        <c:if test="${startPage < 1}">
+                            <c:set var="startPage" value="1" />
+                        </c:if>
+                        <c:set var="endPage" value="${page + 2}" />
+                        <c:if test="${endPage > totalPages}">
+                            <c:set var="endPage" value="${totalPages}" />
+                        </c:if>
+
+                        <!-- Show first page + ellipsis if needed -->
+                        <c:if test="${startPage > 1}">
+                            <a href="${baseUrl}?name=${fn:escapeXml(param.name)}&amp;page=1&amp;pageSize=${pageSize}" class="btn btn-sm btn-outline">1</a>
+                            <c:if test="${startPage > 2}">
+                                <span style="color: var(--text-medium); padding: 0 4px;">...</span>
+                            </c:if>
+                        </c:if>
+
+                        <!-- Page numbers window -->
+                        <c:forEach begin="${startPage}" end="${endPage}" var="p">
+                            <c:choose>
+                                <c:when test="${p == page}">
+                                    <span class="btn btn-sm btn-primary">${p}</span>
+                                </c:when>
+                                <c:otherwise>
+                                    <a href="${baseUrl}?name=${fn:escapeXml(param.name)}&amp;page=${p}&amp;pageSize=${pageSize}" class="btn btn-sm btn-outline">${p}</a>
+                                </c:otherwise>
+                            </c:choose>
+                        </c:forEach>
+
+                        <!-- Show ellipsis + last page if needed -->
+                        <c:if test="${endPage < totalPages}">
+                            <c:if test="${endPage < totalPages - 1}">
+                                <span style="color: var(--text-medium); padding: 0 4px;">...</span>
+                            </c:if>
+                            <a href="${baseUrl}?name=${fn:escapeXml(param.name)}&amp;page=${totalPages}&amp;pageSize=${pageSize}" class="btn btn-sm btn-outline">${totalPages}</a>
+                        </c:if>
+
+                        <!-- Next button -->
+                        <c:choose>
+                            <c:when test="${hasNextPage}">
+                                <a href="${baseUrl}?name=${fn:escapeXml(param.name)}&amp;page=${page+1}&amp;pageSize=${pageSize}" class="btn btn-sm btn-outline">Sau →</a>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="btn btn-sm btn-disabled">Sau →</span>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                    <div class="text-muted" style="font-size: 14px;">Trang ${page} / ${totalPages}</div>
+                </div>
+                </c:if>
             </div>
             </c:when>
             <c:when test="${param.name != null && empty suppliers}">

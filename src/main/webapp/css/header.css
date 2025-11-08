@@ -31,6 +31,7 @@
     align-items: center;
     justify-content: space-between;
     height: 48px;
+    gap: 16px;
 }
 
 /* Logo và Tên hệ thống */
@@ -38,6 +39,48 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+/* Thông tin người dùng ở giữa */
+.header-middle {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.user-info-center {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-fullname {
+    font-weight: 500;
+    font-size: 14px;
+    color: white;
+    text-align: center;
+}
+
+@media (min-width: 640px) {
+    .user-fullname {
+        font-size: 16px;
+    }
+}
+
+/* Đăng xuất */
+.header-logout {
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    border-radius: 6px;
+    flex-shrink: 0;
 }
 
 .brand-icon {
@@ -128,10 +171,10 @@
 .logout-btn {
     display: inline-flex;
     align-items: center;
-    padding: 6px 12px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 6px;
+    padding: 8px 12px;
+    background: #ef4444;
+    border: 1px solid #dc2626;
+    border-radius: 4px;
     color: white;
     text-decoration: none;
     font-size: 14px;
@@ -141,10 +184,11 @@
 }
 
 .logout-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(185, 28, 28, 0.9); /* Đỏ đậm hơn khi hover */
     color: white;
     text-decoration: none;
     transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .logout-icon {
@@ -154,29 +198,19 @@
 }
 
 .logout-text {
-    display: none;
-}
-
-@media (min-width: 640px) {
-    .logout-text {
-        display: inline;
-    }
-}
-
-.logout-text-mobile {
     display: inline;
 }
 
-@media (min-width: 640px) {
-    .logout-text-mobile {
-        display: none;
-    }
+/* Remove mobile-specific logout text since we simplified */
+.logout-text-mobile {
+    display: none;
 }
 
 /* Responsive adjustments */
 @media (max-width: 640px) {
     .header-content {
         height: 44px;
+        gap: 8px;
     }
     
     .brand-title {
@@ -193,8 +227,25 @@
         height: 20px;
     }
     
-    .header-user {
-        gap: 12px;
+    .header-brand {
+        padding: 6px 12px;
+    }
+    
+    .user-info-center {
+        padding: 6px 12px;
+    }
+    
+    .logout-btn {
+        padding: 6px 8px;
+        font-size: 12px;
+    }
+    
+    .user-fullname {
+        font-size: 13px;
+    }
+    
+    .logout-text {
+        display: none; /* Ẩn text trên mobile */
     }
 }
 

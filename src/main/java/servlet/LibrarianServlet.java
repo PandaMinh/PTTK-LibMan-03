@@ -158,13 +158,12 @@ public class LibrarianServlet extends HttpServlet {
                 if (ps != null) pageSize = Math.max(1, Integer.parseInt(ps));
             } catch (NumberFormatException ignore) {}
 
-            List<Supplier> suppliers;
-            List<Supplier> allResults;
+            List<Supplier> suppliers = null;
             int totalItems = 0;
             
             if (name != null && !name.trim().isEmpty()) {
                 // Lấy tất cả kết quả để tính tổng số
-                allResults = supplierDAO.searchSupplierByName(name);
+                List<Supplier> allResults = supplierDAO.searchSupplierByName(name);
                 totalItems = allResults.size();
                 
                 // Validate page number
@@ -177,9 +176,12 @@ public class LibrarianServlet extends HttpServlet {
                 
                 // Lấy kết quả cho trang hiện tại
                 suppliers = supplierDAO.searchSupplierByName(name, page, pageSize);
-            } else {
+            } 
+            // Comment để không load all suppliers khi vào trang lần đầu
+            /*
+            else {
                 // Lấy tất cả để tính tổng
-                allResults = supplierDAO.getAllSuppliers();
+                List<Supplier> allResults = supplierDAO.getAllSuppliers();
                 totalItems = allResults.size();
                 
                 // Validate page number
@@ -192,17 +194,17 @@ public class LibrarianServlet extends HttpServlet {
                 // Lấy kết quả cho trang hiện tại
                 suppliers = supplierDAO.search(page, pageSize, null);
             }
+            */
 
-            // Tính toán pagination dựa trên kết quả thực tế
-            int actualItemsCount = suppliers != null ? suppliers.size() : 0;
-            int totalPages = totalItems > 0 ? (int) Math.ceil((double) totalItems / pageSize) : 1;
-            
-            request.setAttribute("suppliers", suppliers);
-            request.setAttribute("actualItemsCount", actualItemsCount);
-            request.setAttribute("totalItems", totalItems);
-            request.setAttribute("totalPages", totalPages);
-            request.setAttribute("page", page);
-            request.setAttribute("pageSize", pageSize);
+            // Set attributes chỉ khi có suppliers
+            if (suppliers != null) {
+                int totalPages = totalItems > 0 ? (int) Math.ceil((double) totalItems / pageSize) : 1;
+                request.setAttribute("suppliers", suppliers);
+                request.setAttribute("totalItems", totalItems);
+                request.setAttribute("totalPages", totalPages);
+                request.setAttribute("page", page);
+                request.setAttribute("pageSize", pageSize);
+            }
             
             request.getRequestDispatcher("/WEB-INF/jsp/librarian/SearchSupplierView.jsp")
                   .forward(request, response);
@@ -478,6 +480,8 @@ public class LibrarianServlet extends HttpServlet {
                 @SuppressWarnings("unchecked")
                 List<ImportingDetail> details = (List<ImportingDetail>) session.getAttribute("importingDetails");
                 
+                System.out.println("DEBUG: Details count = " + (details != null ? details.size() : 0));
+                
                 if (details != null && !details.isEmpty()) {
                     ImportingInvoice invoice = new ImportingInvoice();
                     invoice.setImportDate(new Date());
@@ -486,7 +490,11 @@ public class LibrarianServlet extends HttpServlet {
                     invoice.setTypePay(typePay != null ? typePay : "Tiền mặt");
                     invoice.setBank(bank != null ? bank : "");
                     
-                    if (importingInvoiceDAO.addNewImportingInvoice(invoice, details)) {
+                    System.out.println("DEBUG: About to save invoice...");
+                    boolean success = importingInvoiceDAO.addNewImportingInvoice(invoice, details);
+                    System.out.println("DEBUG: Save result = " + success);
+                    
+                    if (success) {
                         session.removeAttribute("importingDetails");
                         try {
                             String message = java.net.URLEncoder.encode("Lưu hóa đơn nhập thành công", "UTF-8");

@@ -78,9 +78,11 @@
 .header-logout {
     display: flex;
     align-items: center;
+    justify-content: flex-end; /* Căn về bên phải */
     padding: 4px;
     border-radius: 6px;
     flex-shrink: 0;
+    margin-left: auto; /* Đẩy toàn bộ container về bên phải */
 }
 
 .brand-icon {
@@ -172,8 +174,8 @@
     display: inline-flex;
     align-items: center;
     padding: 8px 12px;
-    background: #ef4444;
-    border: 1px solid #dc2626;
+    background: #2b7a78; /* Màu xanh giống header */
+    border: 1px solid #17a2b8; /* Viền xanh */
     border-radius: 4px;
     color: white;
     text-decoration: none;
@@ -181,10 +183,11 @@
     font-weight: 500;
     transition: all 0.2s ease;
     gap: 8px;
+    margin-left: auto; /* Đẩy về bên phải */
 }
 
 .logout-btn:hover {
-    background: rgba(185, 28, 28, 0.9); /* Đỏ đậm hơn khi hover */
+    background: #17a2b8; /* Xanh sáng hơn khi hover */
     color: white;
     text-decoration: none;
     transform: translateY(-1px);

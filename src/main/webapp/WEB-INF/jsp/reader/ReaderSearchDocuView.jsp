@@ -37,7 +37,6 @@
                     <div style="display: flex; gap: 12px; align-items: center;">
                         <input type="text" id="title" name="title" value="${param.title}" class="form-input" placeholder="Nhập tiêu đề sách cần tìm...">
                         <button type="submit" class="btn btn-primary" style="min-width: 120px; white-space: nowrap;">Tìm kiếm</button>
-                        <a href="<c:url value='/searchDocument'/>" class="btn btn-outline" style="white-space: nowrap;">Danh sách tài liệu</a>
                     </div>
                     <div id="search-error" style="color: #dc3545; font-size: 14px; margin-top: 8px; display: none;">
                         Vui lòng nhập tiêu đề tài liệu cần tìm kiếm!
@@ -216,16 +215,29 @@
                         <div style="font-size: 48px; color: #f39c12; margin-bottom: 16px;">⚠️</div>
                         <h3 style="color: var(--brand); margin-bottom: 12px;">Chưa nhập từ khóa tìm kiếm</h3>
                         <p style="color: var(--text-medium); margin-bottom: 24px;">
-                            Vui lòng nhập tiêu đề tài liệu cần tìm kiếm hoặc xem danh sách tất cả tài liệu.
+                            Vui lòng nhập tiêu đề tài liệu cần tìm kiếm.
                         </p>
                         <div style="display: flex; gap: 12px; justify-content: center;">
                             <button onclick="document.getElementById('title').focus();" 
                                     class="btn btn-primary">Nhập từ khóa</button>
-                            <a href="<c:url value='/searchDocument'/>" class="btn btn-outline">Xem tất cả tài liệu</a>
                         </div>
                     </div>
                 </div>
             </c:when>
+            <c:otherwise>
+                <!-- First time visit - show instruction -->
+                <div class="card mt-2">
+                    <div style="text-align: center; padding: 40px 20px;">
+                        <div style="font-size: 48px; color: var(--brand); margin-bottom: 16px;">🔍</div>
+                        <h3 style="color: var(--brand); margin-bottom: 12px;">Tìm kiếm tài liệu</h3>
+                        <p style="color: var(--text-medium); margin-bottom: 24px;">
+                            Nhập tiêu đề tài liệu cần tìm và click "Tìm kiếm" để xem kết quả.
+                        </p>
+                        <button onclick="document.getElementById('title').focus();" 
+                                class="btn btn-primary">Bắt đầu tìm kiếm</button>
+                    </div>
+                </div>
+            </c:otherwise>
         </c:choose>
     </div>
 

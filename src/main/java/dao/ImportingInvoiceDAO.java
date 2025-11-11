@@ -14,16 +14,23 @@ import java.util.List;
 
 public class ImportingInvoiceDAO extends DAO {
     
+    private ImportingDetailDAO importingDetailDAO;
+    
     public ImportingInvoiceDAO() {
         super();
+        // Khởi tạo importingDetailDAO với cùng connection để đảm bảo transaction
+        this.importingDetailDAO = new ImportingDetailDAO(this.connection);
     }
     
     public boolean addNewImportingInvoice(ImportingInvoice invoice, List<ImportingDetail> details) {
         String sql = "INSERT INTO tblImportingInvoice (importDate, supplierId, librarianId, typePay, bank) VALUES (?, ?, ?, ?, ?)";
         
+        System.out.println("DEBUG: addNewImportingInvoice called with " + details.size() + " details");
+        
         try {
             // Start transaction
             connection.setAutoCommit(false);
+            System.out.println("DEBUG: Transaction started");
             
             // Insert invoice
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -33,7 +40,9 @@ public class ImportingInvoiceDAO extends DAO {
             ps.setString(4, invoice.getTypePay());
             ps.setString(5, invoice.getBank());
             
+            System.out.println("DEBUG: About to insert invoice...");
             int result = ps.executeUpdate();
+            System.out.println("DEBUG: Invoice insert result = " + result);
             
             if (result > 0) {
                 // Get generated invoice ID
@@ -41,19 +50,27 @@ public class ImportingInvoiceDAO extends DAO {
                 if (generatedKeys.next()) {
                     int invoiceId = generatedKeys.getInt(1);
                     invoice.setId(invoiceId);
+                    System.out.println("DEBUG: Generated invoice ID = " + invoiceId);
                     
                     // Set invoice reference in details and add them
                     for (ImportingDetail detail : details) {
                         detail.setImportingInvoice(invoice);
                     }
-                    addListNewImportingDetail(details);
                     
-                    connection.commit();
-                    ps.close();
-                    return true;
+                    System.out.println("DEBUG: About to insert details...");
+                    boolean detailsSuccess = importingDetailDAO.addListNewImportingDetail(details);
+                    System.out.println("DEBUG: Details insert result = " + detailsSuccess);
+                    
+                    if (detailsSuccess) {
+                        connection.commit();
+                        System.out.println("DEBUG: Transaction committed successfully");
+                        ps.close();
+                        return true;
+                    }
                 }
             }
             
+            System.out.println("DEBUG: Rolling back transaction");
             connection.rollback();
             ps.close();
             return false;
@@ -71,57 +88,6 @@ public class ImportingInvoiceDAO extends DAO {
                 connection.setAutoCommit(true);
             } catch (SQLException e) {
                 System.err.println("Error resetting auto-commit: " + e.getMessage());
-            }
-        }
-    }
-    
-    private boolean addListNewImportingDetail(List<ImportingDetail> details) throws SQLException {
-        String sql = "INSERT INTO tblImportingDetail (invoiceId, documentId, price, quantity) VALUES (?, ?, ?, ?)";
-        
-        boolean autoCommit = connection.getAutoCommit();
-        try {
-            // Start transaction if not already in one
-            if (autoCommit) {
-                connection.setAutoCommit(false);
-            }
-
-            try (PreparedStatement ps = connection.prepareStatement(sql)) {
-                // Add all details in a batch
-                for (ImportingDetail detail : details) {
-                    ps.setInt(1, detail.getImportingInvoice().getId());
-                    ps.setInt(2, detail.getDocument().getId());
-                    ps.setDouble(3, detail.getPrice());
-                    ps.setInt(4, detail.getQuantity());
-                    ps.addBatch();
-                }
-                
-                // Execute batch and verify results
-                int[] results = ps.executeBatch();
-                for (int result : results) {
-                    if (result <= 0) {
-                        if (autoCommit) {
-                            connection.rollback();
-                        }
-                        return false;
-                    }
-                }
-                
-                // Commit only if we started the transaction
-                if (autoCommit) {
-                    connection.commit();
-                }
-                return true;
-            } catch (SQLException e) {
-                // Rollback only if we started the transaction
-                if (autoCommit) {
-                    connection.rollback();
-                }
-                throw e; // Re-throw to be handled by caller
-            }
-        } finally {
-            // Restore previous auto-commit state if we changed it
-            if (autoCommit) {
-                connection.setAutoCommit(true);
             }
         }
     }

@@ -101,13 +101,12 @@ public class ReaderServlet extends HttpServlet {
             if (ps != null) pageSize = Math.max(1, Integer.parseInt(ps));
         } catch (NumberFormatException ignore) {}
 
-        List<Document> documents;
-        List<Document> allResults;
+        List<Document> documents = null;
         int totalItems = 0;
         
         if (title != null && !title.trim().isEmpty()) {
             // Lấy tất cả kết quả để tính tổng số
-            allResults = documentDAO.searchDocumentByName(title);
+            List<Document> allResults = documentDAO.searchDocumentByName(title);
             totalItems = allResults.size();
             
             // Validate page number
@@ -120,9 +119,12 @@ public class ReaderServlet extends HttpServlet {
             
             // Lấy kết quả cho trang hiện tại
             documents = documentDAO.searchDocumentByName(title, page, pageSize);
-        } else {
+        } 
+        // Comment để không load all documents khi vào trang lần đầu
+        /*
+        else {
             // Lấy tất cả để tính tổng
-            allResults = documentDAO.searchAll();
+            List<Document> allResults = documentDAO.searchAll();
             totalItems = allResults.size();
             
             // Validate page number
@@ -135,17 +137,17 @@ public class ReaderServlet extends HttpServlet {
             // Lấy kết quả cho trang hiện tại
             documents = documentDAO.search(page, pageSize, null);
         }
+        */
 
-        // Tính toán pagination dựa trên kết quả thực tế
-        int actualItemsCount = documents != null ? documents.size() : 0;
-        int totalPages = totalItems > 0 ? (int) Math.ceil((double) totalItems / pageSize) : 1;
-        
-        request.setAttribute("documents", documents);
-        request.setAttribute("actualItemsCount", actualItemsCount);
-        request.setAttribute("totalItems", totalItems);
-        request.setAttribute("totalPages", totalPages);
-        request.setAttribute("page", page);
-        request.setAttribute("pageSize", pageSize);
+        // Set attributes
+        if (documents != null) {
+            int totalPages = totalItems > 0 ? (int) Math.ceil((double) totalItems / pageSize) : 1;
+            request.setAttribute("documents", documents);
+            request.setAttribute("totalItems", totalItems);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("page", page);
+            request.setAttribute("pageSize", pageSize);
+        }
 
         request.getRequestDispatcher("/WEB-INF/jsp/reader/ReaderSearchDocuView.jsp")
                 .forward(request, response);
